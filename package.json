@@ -6,7 +6,8 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "my-app": "pnpm --filter my-app run dev"
+    "my-app": "pnpm --filter my-app run dev",
+    "docs": "pnpm --filter my-app-docs run dev"
   },
   "devDependencies": {
     "prettier": "^3.3.3",
