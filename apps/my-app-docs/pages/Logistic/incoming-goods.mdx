@@ -1,0 +1,32 @@
+Figma link: https://www.figma.com/design/R7YYeQoeIxJVi9otnSWsdh/2023-Design-System?t=OVDX4IlRg3XmqXA3-0
+
+In this project, we created two packages for the design system:
+
+- [packages/design-tokens](../packages/design-tokens): This package contains the design tokens for the SuperApp Dashboard. The design tokens are used to define the visual styles, colors, etc. for the components in the SuperApp Dashboard.
+- [packages/components](../packages/components): This package contains the React components that are used in the SuperApp Dashboard.
+
+## React Components
+
+Our React components are based on the [Ant Design](https://ant.design/) library as a foundation. It's chosen for two reasons:
+
+- It's a well-established library with a wide range of components and good documentation.
+- Our team has experience using Ant Design before when building the SuperApp Dashboard V3.
+
+Most of our components has close to 100% API similarity with Ant Design. We use the Ant Design components as a foundation and customize them to fit the SuperApp Dashboard's design system. This approach allows us to leverage the existing Ant Design components and their documentation, while also benefiting from the customization and styling capabilities of the design system.
+
+### Styling
+
+We use SCSS modules to style our components. This approach allows us to easily override styles for individual components without affecting other components.
+
+### Controlled and Uncontrolled Components
+
+For components that accept user input, we provide both controlled and uncontrolled versions. Controlled components are used when the component's state is managed by the parent component, while uncontrolled components are used when the component's state is managed by the component itself.
+
+To make it easier to create both controlled and uncontrolled versions of a component, we use the [`useControllableValue`](https://ahooks.js.org/hooks/use-controllable-value) hook from the [`ahooks`](https://ahooks.js.org) library. This hook allows us to create a controlled component by providing a default value and a setter function.
+
+### Assets
+
+We also export assets such as icons and illustrations.
+
+- The icons are svg files that are exported as React components.
+- The illustrations are exported as http urls of svg files. It's usually used for bigger svg images that are used as illustrations of data or user actions.
