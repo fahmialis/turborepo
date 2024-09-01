@@ -1,0 +1,36 @@
+This monorepo is a collection of packages and applications that are used to build the SuperApp Dashboard. It is organized as a monorepo, which means that all packages and applications are managed as a single unit. This allows for better organization, dependency management, and build processes.
+
+The monorepo is managed using the following tools:
+
+- [turborepo](https://turbo.build/repo)
+
+  A build system for monorepos that speeds up build processes by caching, parallelizing, and more. It reads the `turbo.json` file in the root of the monorepo to determine the build order and dependencies of each package.
+
+- [pnpm](https://pnpm.io/)
+
+  A package manager recommended by turborepo team. It describes itself as "Fast, disk space efficient package manager".
+
+## Packages
+
+The monorepo includes the following packages:
+
+- `packages/design-tokens`: Customized antd design tokens.
+- `packages/eslint-config`: ESLint preset.
+- `packages/tsconfig`: Shared `tsconfig.json` files used throughout the monorepo.
+- `packages/components`: React components used in the SuperApp Dashboard.
+
+## Applications
+
+The monorepo includes the following applications:
+
+- `apps/design-tokens-previewer`: Previewer for customized antd design tokens.
+- `apps/v4-dashboard`: SuperApp Dashboard application. This is the main application that is used to build the SuperApp Dashboard.
+
+## Compilation
+
+Running `pnpm build` from the root of the monorepo will run the `build` command defined in each package's `package.json` file.
+
+## Development
+
+- Running `pnpm dev:components` from the root of the monorepo will run the `dev` command defined in packages/components/package.json file.
+- Running `pnpm dev:v4-dashboard` from the root of the monorepo will run the `dev` command defined in apps/v4-dashboard/package.json file.

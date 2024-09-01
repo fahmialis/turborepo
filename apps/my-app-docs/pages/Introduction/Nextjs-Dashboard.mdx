@@ -1,0 +1,157 @@
+## Why use Next.js?
+
+Here we are using Next.js for only two reason:
+
+- It has a relatively fast build time (an even faster build time is in the making by the Next.js team).
+- It has fast HMR (Hot Module Replacement) which is a feature that allows us to see the changes in the application without having to refresh the page.
+
+Those two benefits come out of the box when using Next.js without any additional configuration.
+
+## SPA mode
+
+Although Next.js is a full-stack framework, it also supports Single Page Applications (SPA) mode with static export mode.
+
+For client routing, we use the popular [react-router-dom](https://reactrouter.com/web/guides/quick-start) library. We chose this library instead of Next.js' built-in routing because our team has experience using it before. Using Next.js' built-in routing in our case doesn't give much benefits. And in my opinion, react-router-dom is much more flexible than Next.js' built-in routing for client side routing of SPA applications.
+
+### So why using Next.js when we keep using react-router-dom?
+
+Back to the previous point that we are using Next.js only because of the fast build time and HMR.
+
+### Why not Vite which also has fast build time and HMR out of the box?
+
+Vite is indeed a great choice for building applications that require fast build times and HMR. But we decided to use Next.js because it is more popular among the React community.
+
+## App Structure
+
+The structure of the application is made by considering the locality of the behavior.
+
+We are comprised of multiple squads that are responsible for different parts of the application. Each squad own some features. For example, the `Procurement` squad own the `production-order` feature, the `Operation` squad own the `outgoing-goods` feature, etc.
+
+Each feature resides under a menu. For example the `production-order` feature resides under the `Purchasing` menu, and the `outgoing-goods` feature resides under the `Logistics` menu.
+
+The module unit of the application is the feature that should contain all the related components, pages, and APIs. Nothing can be exposed to the outside feature.
+
+Here is the basic structure of the application:
+
+```
+src
+├── app
+│   ├── ...
+│   └── ...
+├── common
+│   ├── ...
+│   └── ...
+└── pages
+     ├── accounting
+     │   ├── feature A
+     │   └── feature B
+     ├── administrator
+     │   ├── feature C
+     │   └── feature D
+     ├── finance
+     │   ├── feature E
+     │   └── feature F
+     └── ...
+
+```
+
+- `src/app`
+
+  The `app` directory contains the application's entry point, and everything that is global to the application. It includes the authentication, socket, store, and router.
+
+- `src/pages`
+
+  The `pages` directory contains the application's pages (features). Most of the development work will be done inside here.
+
+- `src/common`
+
+  Anything that is shareable between features should be placed under the `common` directory.
+
+A typical menu structure is as follows:
+
+```
+.
+├── api
+│   ├── endpoints.ts
+│   ├── index.ts
+│   └── schemas.ts
+├── components
+│   └── ...
+├── constants.ts
+├── index.tsx
+├── pages
+│   ├── Create
+│   ├── Edit
+│   ├── List
+│   └── New
+└── routes.ts
+```
+
+This is not a rigid structure, but it is a good starting point. You can add more (or remove) to the structure as you see fit.
+
+### `./api`
+
+The `api` directory contains all the APIs that are used by the feature. It includes the endpoints, schemas, and index files.
+
+The schema files are used to define the data structure of the API requests and responses. We use [zod](https://github.com/colinhacks/zod) to define the schema.
+
+Having a well-defined schema and validated data on the API boundaries is crucial for maintaining the integrity and consistency of the data. It ensures that the data is in the correct format and meets the required criteria before it is processed or used by the application.
+
+### `./routes.ts`
+
+The `routes.ts` file contains the routes for the feature. It defines the paths and parameters for the API endpoints. We use [typesafe-routes](https://github.com/pbeshai/typesafe-routes) to define the routes.
+
+### `./pages`
+
+The `pages` directory contains all the pages that are used by the feature. Try to colocate components as close to the page where they are used as possible. This helps to keep the codebase clean and maintainable.
+
+For examples
+
+- a modal component is needed in `List` page, so it should be placed under `menu/pages/List` directory.
+- a component that is shared by `Create` and `Edit` page is placed under `menu/components` directory.
+
+### `./components`
+
+As mentioned above, the `components` directory is used to place components that are shared by multiple pages.
+
+## Data Fetching with Tanstack Query
+
+We use [tanstack-query](https://tanstack.com/query/v4) that's wrapped by [zodios](https://www.zodios.org/) to fetch data from the API. Zodios auto generates the tanstack-query hooks for us. Combined with the zod schema, it's a powerful tool for type-safe data fetching.
+
+## Global State Management with Jotai
+
+We use [jotai](https://jotai.org/) for managing global state. It's a state management library that provides a simple API for managing state in React applications. From the nature of the our SuperApp Dashboard, actually not much global state is needed. For maintainability, always try to keep the state as local as possible. And I believe you don't need to add any more global state than the existing ones.
+
+Considering the minimum stuffs that we need to keep track of as global state, I look for a library that fulfills the following requirements:
+
+- It should be lightweight and easy to use.
+- The developers don't have to learn any new concepts. It's best when usage is similar to `useState` hook.
+- It should be able to be used outside of React.
+
+So, what matches our requirements? Mostly any library that use the atomic approach to manage state. And here the list of the libraries that I found:
+
+- [recoil](https://github.com/facebookexperimental/Recoil)
+- [jotai](https://github.com/pmndrs/jotai)
+- [nanostores](https://github.com/nanostores/nanostores)
+
+I don't pick recoil because it's still in the experimental phase. And I picked jotai over nanostores because it's more popular.
+
+## Styling with Tailwind
+
+We use [tailwind](https://tailwindcss.com/) for styling. It's a utility-first CSS framework, which means it provides a set of utility classes for commonly used styles. This makes it easier to write and maintain styles.
+
+Some of the tailwind classes are customized to match our design tokens. The configuration is in [`tailwind.config.js`](../apps/v4-dashboard/tailwind.config.ts) file.
+
+The usage of tailwind should be limited to the application layer. Never use it for styling components in `packages/components`. That's because tailwind is configured to scan only the `apps/v4-dashboard` directory. And also we want the `packages/components` to be portable and reusable even outside of the SuperApp Dashboard V4.
+
+## Compatibility Layer with V3 and V2 Dashboard
+
+We have a compatibility layer that allows us to have the V2, V3, and V4 dashboard running side by side. The layer is mainly around the data storage.
+
+The V2 and V3 dashboard utilize cookies to store these following data:
+
+- user
+- warehouse
+- access token
+
+Although not all of them is needed to be persisted, here we keep using the cookies to store those data. This will stay the same for as long as the V2 and V3 dashboards are still running. When the V2 and V3 cease to exist, the data storage should be improved.

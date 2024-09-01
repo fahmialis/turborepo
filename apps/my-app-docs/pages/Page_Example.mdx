@@ -1,0 +1,107 @@
+# InputIncomingConsignment Component
+
+## Overview
+
+Explain what the pages do.
+
+The `InputIncomingConsignment` component is a page that displays the details of a consignment for validation purposes. It shows information about the consignment, including warehouse details, billing and shipping dates, and the total number of unsold SKUs and quantities. It also lists the products within the consignment, with a focus on validating the quantities of returned items.
+
+## Props
+
+Explain the props received by the page and what they do.
+
+### InputForm Props
+
+The `InputForm` component receives the following props:
+
+- **rowData**: `ConsignmentResult`  
+  The data related to the consignment, including warehouse information, transaction code, etc.
+- **dataSource**: `ConsignmentDetailResult[]`  
+  The list of products within the consignment, used to populate the table in the form.
+
+## Data Models
+
+Explain the types and usage.
+
+### ConsignmentResult
+
+The `ConsignmentResult` type defines the structure of the data for each consignment entry:
+
+```typescript
+import { z } from 'zod';
+
+const ConsignmentResult = z.object({
+  id: z.number(),
+  source_id: z.number(),
+  source: z.string(),
+  source_code: z.string(),
+  warehouse_id: z.number(),
+  warehouse_name: z.string(),
+  from_warehouse_id: z.number(),
+  vendor_id: z.number(),
+  total_sku: z.number(),
+  total_quantity: z.number(),
+  total_remaining_quantity: z.number(),
+  created_at: z.string(),
+});
+```
+
+## Functions
+
+Add the notable function that need further explanation of the logic behind it, please add the props types and the return types if there is any.
+
+### `mappingData`
+
+The `mappingData` function processes and updates the `transaction` state based on the provided `data` and the current state of `openModalSetoran`. It handles the calculation of totals and updates the `transaction.list` and `transaction.failed` arrays accordingly.
+
+#### Parameters
+
+- **data** (`MappingData`): An object containing the following properties:
+  - `key` (string): Indicates whether the data is "valid" or "failed".
+  - `id` (number): The ID of the transaction.
+  - `invoice` (string): The invoice number associated with the transaction.
+
+#### Function Logic
+
+1. **Calculate `newGrandTotal`:**
+
+   - Compute the total amount from `order_amounts` where `payment_type` is "transfer" and add it to `totalCash`.
+   - Default to `0` if `order_amounts` is undefined or empty.
+
+2. **Determine `targetList` and `otherList`:**
+
+   - Depending on the `data.key` value ("valid" or "failed"), set `targetList` to either `transaction.list` or `transaction.failed`.
+   - Set `otherList` to the opposite list.
+
+3. **Find the Index:**
+
+   - Locate the index of the item in `targetList` that matches the `id` and `invoice` from `data`.
+
+4. **Update Transaction Data:**
+
+   - If the item is found and matches the `openModalSetoran.id`, update the item’s `amount_cash`, `amount_transfer`, and `order_amounts`.
+   - Adjust `confirmed` status to `true`.
+
+5. **Update Lists Based on Conditions:**
+
+   - If `data.key` is "valid" and `grand_total` is less than or equal to `newGrandTotal`, update the `transaction.list`.
+   - If `data.key` is not "valid" and `grand_total` is less than or equal to `newGrandTotal`, move the item from `targetList` to `transaction.list` and remove it from `targetList`.
+   - If `grand_total` is greater than `newGrandTotal`, move the item to `transaction.failed` and remove it from `targetList`.
+
+6. **Update State:**
+   - Update the `transaction` state with the modified `list` and `failed` arrays.
+   - Reset `totalCash` and `totalTransfer` to `0`.
+   - Clear the `image_url` value.
+   - Close the `openModalSetoran` and update `prevModalSetoran` state.
+
+#### Example Usage
+
+```typescript
+const data: MappingData = {
+  key: 'valid',
+  id: 123,
+  invoice: 'INV-001',
+};
+
+mappingData(data);
+```
